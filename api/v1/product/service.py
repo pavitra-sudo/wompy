@@ -2,13 +2,24 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from .model import Product
 
+
+def search_product_by_barcode(db: Session, barcode: str):
+    product = db.query(Product).filter(Product.barcode == barcode).first()
+    
+
 def get_product_by_barcode(db: Session, barcode: str):
-    return db.query(Product).filter(Product.barcode == barcode).first()
+    product = db.query(Product).filter(Product.barcode == barcode).first()
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+    return product
 
 
 def create_product(db: Session, product):
-    existing_product = get_product_by_barcode(db, product.barcode)
-    
+    existing_product = search_product_by_barcode(db, product.barcode)
+
     if existing_product:
         raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
@@ -34,7 +45,7 @@ def create_product(db: Session, product):
 
 
 def delete_product(db: Session, barcode: str):
-    product = get_product_by_barcode(db, barcode)
+    product = search_product_by_barcode(db, barcode)
 
     if not product:
         raise HTTPException(
@@ -45,3 +56,19 @@ def delete_product(db: Session, barcode: str):
     db.delete(product)
     db.commit()
 
+def update_product(db: Session, barcode: str, updated_data):
+    product = search_product_by_barcode(db, barcode)
+
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Product not found"
+        )
+
+    for key, value in updated_data.dict(exclude_unset=True).items():
+        setattr(product, key, value)
+
+    db.commit()
+    db.refresh(product)
+
+    return product

@@ -15,3 +15,6 @@ class Product(Base):
     quantity = Column(Integer, nullable=False, default=0)
     
     
+
+    
+    
