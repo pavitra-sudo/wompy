@@ -1,21 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from schema import GetProduct ,PostProductRequest
+from .schema import GetProduct ,PostProductRequest
 from . import service  # Import the service layer
 
-router = APIRouter()
+router = APIRouter(prefix="/api/v1/product", tags=["products"])
 
 @router.post("/", response_model=PostProductRequest)
 def create_product(product: PostProductRequest, db: Session = Depends(get_db)):
     # Here you would call a service function to handle the creation logic
-    product = service.get_product_by_barcode(db, product.barcode)
-    if product:
+    existing_product = service.get_product_by_barcode(db, product.barcode)
+    if existing_product:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Product with this barcode already exists"
         )
     new_product = service.create_product(db, product)
+    return new_product
 
 
 

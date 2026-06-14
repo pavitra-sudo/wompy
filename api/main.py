@@ -1,13 +1,9 @@
 from fastapi import FastAPI
 from config.settings import conf
-
+from v1.product.router import router as product_router
 app = FastAPI()
 
-@app.get("/")
-async def home():
-    return {"message": "Welcome to the Wompy API!"}
-
-
+app.include_router(product_router)
 
 if __name__ == "__main__":
     import uvicorn

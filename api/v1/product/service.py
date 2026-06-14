@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from model import Product
+from .model import Product
 
 def get_product_by_barcode(db: Session, barcode: str):
     return db.query(Product).filter(Product.barcode == barcode).first()
