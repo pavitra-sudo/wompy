@@ -20,8 +20,10 @@ class PostProductRequest(ProductBase):
 
 class PostProductResponse(BaseModel):
     id: int
+    msg:str
     
     class Config:
         from_attributes = True
-    
+        
+
     
